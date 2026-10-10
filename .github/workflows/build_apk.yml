@@ -1,0 +1,47 @@
+name: Build Flutter APK
+
+on:
+  push:
+    branches:
+      - main     # यदि आपकी मुख्य ब्रांच का नाम master है, तो यहाँ master लिखें
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1. GitHub रिपॉजिटरी से कोड डाउनलोड करें
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      # 2. जावा (JDK) सेट अप करें
+      - name: Set up Java JDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'zulu'
+          java-version: '17'
+
+      # 3. Flutter SDK सेट अप करें
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: 'stable'
+          cache: true
+
+      # 4. डिपेंडेंसी (Dependencies) गेट करें
+      - name: Install Dependencies
+        run: flutter pub get
+
+      # 5. Android APK बिल्ड करें (Release Mode)
+      - name: Build APK
+        run: flutter build apk --release --no-pub
+
+      # 6. तैयार APK को Download करने के लिए Upload करें
+      - name: Upload APK Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-release-apk
+          path: build/app/outputs/flutter-apk/app-release.apk
